@@ -1,0 +1,5 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    iframe {
+      zoom: 0.25;
+    }
+  }
