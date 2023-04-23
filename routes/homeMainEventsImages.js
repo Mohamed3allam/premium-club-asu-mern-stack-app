@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
+const {MongoClient} = require('mongodb');
 const router = express.Router()
 const crypto = require('crypto')
 const { requireAuth } = require('../middleware/requireAuth')
@@ -14,7 +15,11 @@ const { json } = require('body-parser')
 const { error } = require('console')
 
 
-const HomeMainEventsConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE)
+const HomeMainEventsConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE, { 
+    useNewUrlParser:true, 
+    useUnifiedTopology:true, 
+    readPreference:'secondary' 
+})
 //Init gfs
 let HomeMainEventsGfs;
 // Init Stream
@@ -183,12 +188,11 @@ router.post('/add-single-home-main-event-image',uploadSingle.single('add-single-
 
 
 // GET an Image in GridFsBucket by it's name
-router.get('/home-main-events-images/display/:name', async (req,res) => {
-    const imgName = req.params.name
-    const HomeMainEventsConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE)
+router.get('/home-main-events-images/display/:name', async (req,res, next) => {
+    const imgName = req.params.name;
     // Init Stream
-     HomeMainEventsConn.once('open', ()=> {
-        new mongoose.mongo.GridFSBucket(HomeMainEventsConn.db, {bucketName: 'HomeMainEvents'}).find().toArray(function(err, files) {
+    (HomeMainEventsConn.readyState === 1) &&
+        await HomeMainEventsGfs.find().toArray(async (err, files) => {
 
             // Check if files
             if (!files || files.length === 0) {
@@ -198,13 +202,12 @@ router.get('/home-main-events-images/display/:name', async (req,res) => {
             }
             try {
                     // Read Output to browser
-                    const readStream = new mongoose.mongo.GridFSBucket(HomeMainEventsConn.db, {bucketName: 'HomeMainEvents'}).openDownloadStreamByName(`${imgName}`)
-                    readStream.pipe(res)
+                    const readStream = await HomeMainEventsGfs.openDownloadStreamByName(`${imgName}`)
+                    await readStream.pipe(res)
             } catch (error) {
                 console.log(error)
             }
         })
-    })
 })
 
 router.put('/update-home-main-events-image/json/:id',updateSingle.single('update-single-home-main-event-image'), async (req,res) => {
@@ -227,11 +230,12 @@ router.put('/update-home-main-events-image/json/:id',updateSingle.single('update
     }
 })
 
-router.delete('/delete-single-home-main-events-image/json/:id', async (req,res) => {
+router.delete('/delete-single-home-main-events-image/json/:id',requireAuth, async (req,res, next) => {
     try {
         const imageId = req.params.id
         await HomeMainEventsGfs.delete(imageId)
         await HomeImage.findByIdAndDelete(imageId)
+        console.log('image deleted')
         res.status(200).json({message:'Image Deleted!'})
     } catch (err) {
         res.status(401).json({error:err})

@@ -4,6 +4,7 @@ const app = express()
 require('dotenv').config()
 
 const mongoose = require('mongoose')
+const MongoClient = require('mongodb').MongoClient
 mongoose.set('strictQuery', false);
 
 const bodyParser = require("body-parser");
@@ -15,16 +16,30 @@ const cookieParser = require('cookie-parser')
 //Requiring routes
 const userAuth = require("./routes/userAuthRoutes")
 const userRoutes = require("./routes/userRoutes");
-const bgImageRoutes = require('./routes/bgImageRoutes')
 const PPImageRoutes = require('./routes/ppImageRoutes')
 const homeSectionRoutes = require('./routes/homeData')
 const homeMainEventsImagesRoutes = require('./routes/homeMainEventsImages')
 const activityRoutes = require('./routes/activityRoutes')
-const committeeRoutes = require('./routes/committeeRoutes')
+const committeeRoutes = require('./routes/committeeRoutes');
 
+
+mongoose.connect(process.env.MONGO_URI,{ useNewUrlParser:true, useUnifiedTopology:true, maxPoolSize:10, readPreference:'secondary' }, () => {
+    console.log('MongoDb Connected')
+})
+
+// console.log(mongoose.connections)
+// const cleanUp = () => {
+//     mongoose.connection.close(() => {
+//         console.info('connection closed');
+//     });
+// };
+
+// [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+//     process.on(eventType, cleanUp.bind(null, eventType));
+// })
 
 // json middleware
-app.use(express.json())
+// app.use(express.json())
 app.use(cors())
 app.use(cookieParser())
 
@@ -36,11 +51,13 @@ app.use(methodOverride('_method'))
 app.set('view engine', 'ejs');
 
 
+// MongoStore Middleware
+
+
 //routes
 app.use('/authuser', userAuth)
 app.use('/users', userRoutes)
 app.use('/api-pp',  PPImageRoutes)
-app.use('/background', bgImageRoutes)
 app.use('/home-api', homeSectionRoutes)
 app.use('/home-api', homeMainEventsImagesRoutes)
 app.use('/activity-api', activityRoutes)
@@ -82,9 +99,7 @@ app.get('/allimages', async (req,res)=> {
     })
 })
 
-mongoose.connect(process.env.MONGO_URI, () => {
-    console.log('MongoDb Connected')
-})
+
 app.listen(process.env.PORT, ()=> {
     console.log(`Started listening on port ${process.env.PORT}`)
 })

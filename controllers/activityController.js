@@ -2,9 +2,9 @@ const ActivityImage = require('../models/ActivityImage')
 const Activity = require('../models/Activity')
 require('dotenv').config()
 
-const createActivity = async (req, res, next) => {
+const createActivity = async (req, res) => {
     
-    const { activityTitle, activityDescription, flexDirection } = req.body
+    const { activityTitle, activityDescription, flexDirection } = req.body;
     console.log({ activityTitle, activityDescription, flexDirection })
     try {
         let i=1;
@@ -22,7 +22,7 @@ const createActivity = async (req, res, next) => {
         //     return 0
         // }
         const activity = await Activity.create({ activityTitle, activityDescription, flexDirection, activity_ordering:i })
-        res.json({activity})
+        res.status(200).json(activity)
     } catch (err) {
         console.log(err)
         res.status(400).json({error:err})

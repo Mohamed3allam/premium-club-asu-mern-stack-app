@@ -20,7 +20,7 @@ router.post('/upload-bg-image', BgImageUploader(), (req,res)=> {
 })
 
 router.get('/shownimage/backgroundimage', async (req,res) => {
-    const BGImageConn = mongoose.createConnection(process.env.MONGO_URI_BG_IMAGE)
+    const BGImageConn = mongoose.createConnection(process.env.MONGO_URI_BG_IMAGE, { useNewUrlParser:true, useUnifiedTopology:true})
     // Init Stream
      BGImageConn.once('open', ()=> {
         new mongoose.mongo.GridFSBucket(BGImageConn.db, {bucketName: 'backgroundImage'}).find({}).toArray(function(err, file) {

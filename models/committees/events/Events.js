@@ -2,21 +2,27 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
-const committeeImgSchema = new Schema({
-    filename:{
+const eventsSchema = new Schema({
+    committeeImageFilename:{
         type:String,
         required:true
     },
-    committee:{
+    committeeImageUrl:{
         type:String,
-        enum:['media','marketing','events','public relations','human resources','logistics','academic'],
+        required:true
+    },
+    committee_id:{
+        type:String,
         required: true,
-        unique:true
     },
-    imageUrl:{
-        type:String,
-        required:true
+    members_count:{
+        type:Number,
+        required: true
     },
+    // committee_evaluation: {
+    //     type:Number,
+    //     required:true
+    // }
 }, { timestamps: true })
 
 committeeImgSchema.statics.signup = async (filename, committee, imageUrl) => {

@@ -20,7 +20,11 @@ const router = express.Router()
 
 
 // Image Upload Initialization to Activities
-const ActivityConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE)
+const ActivityConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE, { 
+    useNewUrlParser:true, 
+    useUnifiedTopology:true, 
+    readPreference:'secondary' 
+})
 let ActivityGfs;
 ActivityConn.once('open', () => {
     ActivityGfs = new mongoose.mongo.GridFSBucket( ActivityConn.db, { bucketName:'Activities' } )
@@ -59,8 +63,8 @@ const CreateActivityStorage = new GridFsStorage({
                     const activityImageLength = await ActivityImage.countDocuments({activity_id: activity.id})
                     console.log(activityImageLength)
                     if (activityImageLength >= 10) {
-                        throw Error("You've reached maximum images")
                         reject()
+                        throw Error("You've reached maximum images") 
                     }
                     // Create in json
                     const activityImage = await ActivityImage.create({
@@ -211,9 +215,9 @@ const updateSingle = multer({ storage: UpdateSingleStorage })
 router.post('/create-activity', createActivity) 
 // add images to it after creating activity request
 // it can be also used to add images to the activity
-router.post('/create-activity-imgs',uploadNewActivity.array('create-activity', 10), async (req, res) => {
-    console.log(req.files)
+router.post('/create-activity-imgs',uploadNewActivity.array('create-activity', 10), async (req, res, next) => {
     try {
+        console.log(req.files)
         res.status(200).json({files: req.files})
     } catch (err) {
         res.status(404).json({error: err})
@@ -223,7 +227,7 @@ router.post('/create-activity-imgs',uploadNewActivity.array('create-activity', 1
 
 
 // Edit Activity Multiple Images--------------------------------
-router.put('/edit-multiple-activity-images/:id', DeleteImagesBeforeUploadingBulk, uploadMultiple.array('edit-multiple-activity-images', 10), async (req,res) => {
+router.put('/edit-multiple-activity-images/:id', DeleteImagesBeforeUploadingBulk, uploadMultiple.array('edit-multiple-activity-images', 10), async (req,res, next) => {
     try {
         console.log(req.files)
         res.status(200).json({files: req.files})
@@ -240,7 +244,7 @@ router.put('/edit-activity/:id', editActivity)
 
 
 // Edit Activity Single Image-------------------------------
-router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-activity-image'), async (req,res) => {
+router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-activity-image'), async (req,res, next) => {
     const imageId = req.params.id
     try {
         if (!req.file || req.file.length == 0) {
@@ -253,7 +257,6 @@ router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-a
             }
             const image = await ActivityImage.findById(imageId)
             res.status(200).json(image)
-            return 0
         } else {
             res.status(200).json({file: req.file})
         }
@@ -265,9 +268,8 @@ router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-a
 
 
 // Delete Full Activity------------------------------------
-router.delete('/delete-activity/:id', async (req, res) => {
+router.delete('/delete-activity/:id', async (req, res, next) => {
     try {
-
         const activityId = req.params.id
         const activity = await Activity.findById(activityId)
 
@@ -281,7 +283,7 @@ router.delete('/delete-activity/:id', async (req, res) => {
         console.log('All must be deleted')
         await Activity.findByIdAndDelete(activityId)
         console.log('Activity Deleted With all its images!')
-        res.status(200).json({message:'Image Deleted!'})
+        res.status(200).json({message:'Activity Deleted!'})
     } catch (err) {
         console.log(err)
         res.status(400).json({error:err})
@@ -343,20 +345,18 @@ router.get('/activity/:id/images', async (req, res) => {
 
 // GET an Image in GridFsBucket by it's name
 router.get('/activity-image/display/:name', async (req,res) => {
-    const imgName = req.params.name
+    const imgName = req.params.name;
     // Init Stream
-    const ActivityConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE)
-    ActivityConn.once('open', ()=> {
-        new mongoose.mongo.GridFSBucket(ActivityConn.db, {bucketName: 'Activities'}).find().toArray(function(err, files) {
+    (ActivityConn.readyState === 1) &&
+        await ActivityGfs.find().toArray(async (err, files) => {
             try {
                 // Read Output to browser
-                const readStream = new mongoose.mongo.GridFSBucket(ActivityConn.db, {bucketName: 'Activities'}).openDownloadStreamByName(`${imgName}`)
+                const readStream = await ActivityGfs.openDownloadStreamByName(`${imgName}`)
                 readStream.pipe(res)
             } catch (error) {
                 console.log(error)
             }
         })
-    })
 })
 
 // GET a single image in mongodb in json form

@@ -11,13 +11,19 @@ const path = require('path')
 const User = require('../models/User')
 
 
-const PPImageConn = mongoose.createConnection(process.env.MONGO_URI_USER)
+const PPImageConn = mongoose.createConnection(process.env.MONGO_URI_USER, { 
+    useNewUrlParser:true, 
+    useUnifiedTopology:true, 
+    readPreference:'secondary' 
+})
+
 //Init gfs
 let PPImageGfs;
+let DefaultPPImageGfs
 // Init Stream
 PPImageConn.once('open', ()=> {
     PPImageGfs = new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Profile Pics'})
-    return PPImageGfs
+    DefaultPPImageGfs = new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Default Profile Pic'})
 })
 // storage engine
 const PPImageStorage = new GridFsStorage({
@@ -54,7 +60,7 @@ const upload = multer({ storage: PPImageStorage })
 
 // @route /upload-pp-image
 // @desc Upload PP Image Route
-router.put('/upload-pp-image',requireAuth,upload.single('pp-image'), async (req,res)=> {
+router.put('/upload-pp-image',requireAuth,upload.single('pp-image'), async (req,res, next)=> {
     console.log(req.file,req.user)
     try {
         const userId = req.user.id
@@ -68,44 +74,30 @@ router.put('/upload-pp-image',requireAuth,upload.single('pp-image'), async (req,
     }
 })
 
-router.get('/default-pp', async (req,res) => {
-    const PPImageConn = mongoose.createConnection(process.env.MONGO_URI_USER)
+router.get('/default-pp', async (req,res, next) => {
     // Init Stream
-     PPImageConn.once('open', ()=> {
-        new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Default Profile Pic'}).find({}).toArray(function(err, file) {
-            const lastestPP = file[file.length - 1]
-            // Check if files
-            if (!lastestPP || file.length === 0) {
-                return res.status(404).json({
-                    error: 'There is no Profile Picture'
-                })
-            }
-            console.log(lastestPP.contentType)
-            // Check if image
-            if (lastestPP.contentType === 'image/jpeg' || lastestPP.contentType === 'image/png') {
-                // Read Output to browser
-                try {
-                    const readStream = new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Default Profile Pic'}).openDownloadStreamByName(lastestPP.filename)
-                    readStream.pipe(res)
-                } catch (error) {
-                    console.log(error)
-                }
-            } else {
+    (PPImageConn.readyState === 1) && 
+        await DefaultPPImageGfs.find({}).toArray(async (err, file) => {
+            const defaultPP = 'Default Profile Picture.jpg';
+            // Read Output to browser
+            try {
+                const readStream = await DefaultPPImageGfs.openDownloadStreamByName(defaultPP)
+                readStream.pipe(res)
+            } catch (error) {
                 res.status(404).json({
                     error: 'not an image'
                 })
+                console.log(error)
             }
         })
-    })
 })
 
 
-router.get('/users/:userId', async (req,res) => {
-    const user_id = req.params.userId
-    const PPImageConn = mongoose.createConnection(process.env.MONGO_URI_USER)
+router.get('/users/:userId', async (req,res, next) => {
+    const user_id = req.params.userId;
     // Init Stream
-     PPImageConn.once('open', ()=> {
-        new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Profile Pics'}).find().toArray(function(err, file) {
+    (PPImageConn.readyState === 1) &&
+        await PPImageGfs.find().toArray(async (err, file) =>  {
             const lastestPP = file[file.length - 1]
 
             // Check if files
@@ -118,7 +110,7 @@ router.get('/users/:userId', async (req,res) => {
             if (lastestPP.contentType === 'image/jpeg' || lastestPP.contentType === 'image/png') {
                 // Read Output to browser
                 try {
-                    const readStream = new mongoose.mongo.GridFSBucket(PPImageConn.db, {bucketName: 'Profile Pics'}).openDownloadStream(user_id)
+                    const readStream = await PPImageGfs.openDownloadStream(user_id)
                     readStream.pipe(res)
                 } catch (error) {
                     console.log(error)
@@ -129,7 +121,6 @@ router.get('/users/:userId', async (req,res) => {
                 })
             }
         })
-    })
 })
 
 module.exports = router

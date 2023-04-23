@@ -32,7 +32,7 @@ activitySchema.statics.signup = async function(activityTitle, activityDescriptio
         throw Error('All fields must be filled')
     }
 
-    const activityLength = this.estimatedDocumentCount()
+    const activityLength = await this.countDocuments()
     if (activityLength >= 10) {
         throw Error("You Can't add anymore activity, you might delete one.")
     }
