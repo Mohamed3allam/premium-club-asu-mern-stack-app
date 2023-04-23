@@ -10,7 +10,7 @@
     "server": "nodemon server.js",
     "client": "npm start --prefix premium-club-asu",
     "clientinstall": "npm install --prefix premium-club-asu",
-    "dev": "\"npm run server\" && \"npm run client\"",
+    "dev": "\"nodemon server.js\" && \"npm start --prefix premium-club-asu\"",
     "render-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix premium-club-asu && npm run build --prefix premium-club-asu"
   },
   "author": "",
