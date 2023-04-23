@@ -307,7 +307,7 @@ router.delete('/delete-activity-image/:id', async (req, res) => {
 
 
 // GET an Activity------------------------------------------
-router.get('/activity/:id', async (req, res) => {
+router.get('/activity/:id',requireAuth,  async (req, res) => {
     const activityId = req.params.id
     try {
         const activity = await Activity.findById(activityId)

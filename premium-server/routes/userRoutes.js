@@ -21,7 +21,7 @@ const router = express.Router()
 const { requireAuth } = require('../middleware/requireAuth')
 const { grantAccess } = require('../middleware/verifyAuthorization')
 
-router.get('/allusers',requireAuth, getUsers)
+router.get('/allusers',requireAuth,grantAccess('readAny', 'profile'), getUsers)
 router.get('/highboard',requireAuth, getHighboard)
 router.get('/board',requireAuth, getBoard)
 router.get('/members',requireAuth, getMembers)
