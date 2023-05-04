@@ -1,0 +1,34 @@
+*{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    transition: 0.5s;
+}
+
+
+.hr-description {
+    padding-top: 100px;
+}
+
+.hrRole {
+    box-shadow: 0px 0px 20px black;
+    padding-top: 2.5%;
+}
+
+
+.hrTeam {
+    box-shadow: 0px 0px 20px black
+}
+
+.hrTeam {
+    padding-top: 3%;
+    padding-bottom: 3%;
+    background-color: white;
+}
+
+.hrPicDiv {
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 3;
+    padding:10px;
+    box-shadow: 10px 0px 50px rgb(91, 10, 122);
+}

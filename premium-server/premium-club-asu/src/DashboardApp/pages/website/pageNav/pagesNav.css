@@ -1,0 +1,13 @@
+.website-nav-link {
+    text-decoration: none;
+    color: #555;
+    font-size: 20px;
+}
+@media screen and (max-width:768px) {
+    .website-nav-link {
+        font-size: 15px;
+    }
+}
+.website-nav-link:hover {
+    color: black;
+}

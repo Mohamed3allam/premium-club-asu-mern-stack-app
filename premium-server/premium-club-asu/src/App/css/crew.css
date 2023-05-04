@@ -1,0 +1,187 @@
+*{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    transition: 0.5s;
+}
+
+.highBoard {
+    padding-top: 70px;
+}
+
+.position {
+    font-size: medium;
+    margin-top: -3%;
+}
+
+.foundersDivs, .highBoardDivs, .mediaDivs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.highBoardDivs {
+  /* height: 550px; */
+
+}
+@media screen and (max-width:768px) {
+  .highBoard {
+    padding-top: 15px;
+  }
+}
+
+
+.founderDiv, .highBoardDiv, .mediaDiv {
+    width: 30%;
+    padding:3%;
+}
+
+.founderID, .highBoardID, .mediaID {
+    display: flex;
+    background-color: white;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 20px 0px 50px black;
+}
+
+.founderImg, .highBoardImg, .mediaImg {
+    width: 100%;
+}
+
+.founderName, .highBoardName, .mediaName {
+    font-weight: bold;
+    padding: 4%;
+    width: 100%;
+    text-align: center;
+}
+.dev {
+    font-size: 20px !important
+}
+
+@media screen and (min-width:320px) and (max-width:450px) {
+    .carousel-caption {
+        margin-bottom: -7% !important;
+    }
+    .dev {
+        font-size: 12px !important;
+    }
+}
+
+
+
+@media screen and (max-width:768px) {
+    .founderDiv, .highBoardDiv, .mediaDiv {
+        padding:1% !important;
+    }
+    .founderName, .highBoardName, .mediaName {
+        font-size: 15px !important;
+    }
+    .premiumFounders, .highBoard, .media {
+        text-align: center !important;
+    }
+}
+
+
+/* CARDS */
+
+.card-wrapper, .highBoardDiv {
+    position: relative;
+    width: 30%;
+    padding:3%;
+  }
+  
+  .card {
+    display: flex;
+    background-color: white;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 20px 0px 50px black;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.5s;
+    
+    
+  }
+  .card-image {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    height: 100%;
+    z-index: 2;
+    background-color: #000;
+    transition: .5s;
+  }
+
+  @media screen and (max-width:768px) {
+    .card-image img {
+        height: 150%;
+    }
+  }
+  .card:hover img {
+    opacity: 0.3;
+    transition: .5s;
+  }
+
+  
+  .card:hover .card-image {
+    transform: translateY(-100px);
+    transition: all .9s;
+  }
+  @media screen and (max-width:768px) {
+    .card:hover .card-image {
+        transform: translateY(-80px);
+      }
+  }
+
+  .card:hover li:nth-child(1) a {
+      transition-delay: 0.1s;
+  }
+  .card:hover li:nth-child(2) a {
+    transition-delay: 0.2s;
+  }
+  .card:hover li:nth-child(3) a {
+    transition-delay: 0.3s;
+  }
+  .card:hover li:nth-child(4) a {
+    transition-delay: 0.4s;
+  }
+  
+  /**** Personal Details ****/
+  
+  .details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: #fff;
+    width: 100%;
+    height: 120px;
+    z-index: 1;
+    padding: 10px;
+  }
+  .details h2 {
+    margin: 30px 0;
+    padding: 0;
+    text-align: center;
+    font-weight: 900;
+  }
+  @media screen and (max-width:768px) {
+    .details h2 {
+        font-size: large !important;
+      }
+    .details .job-title {
+        font-size: small !important;
+    }  
+  }
+
+  .job-title {
+    font-size: 1rem;
+    line-height: 2.5rem;
+    color: #333;
+    font-weight: 900;
+}
+  
