@@ -9,6 +9,14 @@ const committeesSchema = new Schema({
         required: true,
         unique:true
     },
+    committee_description:{
+        type:String,
+        required:true
+    },
+    committee_sections:{
+        type:Array,
+        required:true
+    },
     committee_image_filename:{
         type:String,
         required:true

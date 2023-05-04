@@ -24,6 +24,8 @@ const ActivityConn = mongoose.createConnection(process.env.MONGO_URI_WEBSITE, {
     useNewUrlParser:true, 
     useUnifiedTopology:true, 
     readPreference:'secondary' 
+}, () => {
+    console.log('connected to Activity Connection')
 })
 let ActivityGfs;
 ActivityConn.once('open', () => {
@@ -212,10 +214,10 @@ const updateSingle = multer({ storage: UpdateSingleStorage })
 // @routes
 
 // Create Activity Route--------------------
-router.post('/create-activity', createActivity) 
+router.post('/create-activity', requireAuth, grantAccess('updateAny', 'website'), createActivity) 
 // add images to it after creating activity request
 // it can be also used to add images to the activity
-router.post('/create-activity-imgs',uploadNewActivity.array('create-activity', 10), async (req, res, next) => {
+router.post('/create-activity-imgs', requireAuth, grantAccess('updateAny', 'website'), uploadNewActivity.array('create-activity', 10), async (req, res, next) => {
     try {
         console.log(req.files)
         res.status(200).json({files: req.files})
@@ -227,7 +229,7 @@ router.post('/create-activity-imgs',uploadNewActivity.array('create-activity', 1
 
 
 // Edit Activity Multiple Images--------------------------------
-router.put('/edit-multiple-activity-images/:id', DeleteImagesBeforeUploadingBulk, uploadMultiple.array('edit-multiple-activity-images', 10), async (req,res, next) => {
+router.put('/edit-multiple-activity-images/:id', requireAuth, grantAccess('updateAny', 'website'),  DeleteImagesBeforeUploadingBulk, uploadMultiple.array('edit-multiple-activity-images', 10), async (req,res, next) => {
     try {
         console.log(req.files)
         res.status(200).json({files: req.files})
@@ -239,12 +241,12 @@ router.put('/edit-multiple-activity-images/:id', DeleteImagesBeforeUploadingBulk
 
 
 // Update Activity------------------------------------------
-router.put('/edit-activity/:id', editActivity)
+router.put('/edit-activity/:id', requireAuth, grantAccess('updateAny', 'website'), editActivity)
 //---------------------------------------------------------
 
 
 // Edit Activity Single Image-------------------------------
-router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-activity-image'), async (req,res, next) => {
+router.put('/edit-single-activity-image/:id', requireAuth, grantAccess('updateAny', 'website'), updateSingle.single('edit-single-activity-image'), async (req,res, next) => {
     const imageId = req.params.id
     try {
         if (!req.file || req.file.length == 0) {
@@ -268,7 +270,7 @@ router.put('/edit-single-activity-image/:id', updateSingle.single('edit-single-a
 
 
 // Delete Full Activity------------------------------------
-router.delete('/delete-activity/:id', async (req, res, next) => {
+router.delete('/delete-activity/:id', requireAuth, grantAccess('updateAny', 'website'), async (req, res, next) => {
     try {
         const activityId = req.params.id
         const activity = await Activity.findById(activityId)
@@ -293,7 +295,7 @@ router.delete('/delete-activity/:id', async (req, res, next) => {
 
 
 // Delete single Image--------------------------------------
-router.delete('/delete-activity-image/:id', async (req, res) => {
+router.delete('/delete-activity-image/:id', requireAuth, grantAccess('updateAny', 'website'), async (req, res) => {
     try {
         const imageId = req.params.id
         await ActivityGfs.delete(imageId)
@@ -307,7 +309,7 @@ router.delete('/delete-activity-image/:id', async (req, res) => {
 
 
 // GET an Activity------------------------------------------
-router.get('/activity/:id',requireAuth,  async (req, res) => {
+router.get('/activity/:id', async (req, res) => {
     const activityId = req.params.id
     try {
         const activity = await Activity.findById(activityId)

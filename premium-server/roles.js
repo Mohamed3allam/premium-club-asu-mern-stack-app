@@ -6,10 +6,14 @@ const ac = new AccessControl()
 const roles = () => {
     ac.grant('Guest')
 
+
+    // Main Scopes for each role
     ac.grant("Member")
         .readOwn('profile')
-        .updateOwn('profile')
-        .readAny('profile')
+        .readOwn('committee')
+        .updateOwn('user')
+        .readAny('user')
+        .readOwn('evaluation')
 
     ac.grant("Vice Head")
         .extend('Member')
@@ -17,20 +21,26 @@ const roles = () => {
     ac.grant("Head")
         .extend('Vice Head')
     
+    ac.grant("HR Head")
+        .extend("Head")
+        .updateAny('evaluation')
+
     ac.grant("Vice President")
-        .extend('Head')
+        .extend('HR Head')
+        
+        .createAny('user')
+        .updateAny('user')
+        .deleteAny('user')
 
-        .createAny('profile')
-        .updateAny('profile')
-        .deleteAny('profile')
+        .updateOwn('highboard_profile')
 
-        .updateOwn('highboardProfile')
 
     ac.grant("President")
         .extend('Vice President')
-        .updateAny('highboardProfile')
-        .deleteAny('highBoardProfile')
+        .updateAny('highboard_user')
+        .deleteAny('highboard_user')
         .updateAny('website')
+        
 
     return ac
 }

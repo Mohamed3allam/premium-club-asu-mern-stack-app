@@ -132,7 +132,7 @@ const uploadCommitteeImg = multer({ storage: EditCommitteeStorage })
 // @routes
 
 // Upload Image and updating it if exists together-------
-router.post('/create-committee', uploadCommittee.single('create-committee'), (req,res)=> {
+router.post('/create-committee', requireAuth, grantAccess('updateAny', 'website'), uploadCommittee.single('create-committee'), (req,res)=> {
     try {
         console.log(req.file)
         res.status(200).json({file:req.file})
@@ -146,10 +146,26 @@ router.post('/create-committee', uploadCommittee.single('create-committee'), (re
 
 
 // Edit Committee Image ---------------------------------
-router.put('/edit-committee-img/:id', uploadCommitteeImg.single('edit-committee-img'), (req,res)=> {
+router.put('/edit-committee-img/:id', requireAuth, grantAccess('updateAny', 'website'), uploadCommitteeImg.single('edit-committee-img'), (req,res)=> {
     try {
         console.log(req.file)
         res.status(200).json({file:req.file})
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        })
+    }
+})
+//-------------------------------------------------------
+
+// Edit Committee Description ---------------------------------
+router.put('/edit-committee-description/:committeeId', requireAuth, grantAccess('updateAny', 'website'), async (req,res)=> {
+    const { description } = req.body
+    const committeeId = req.params.committeeId
+    try {
+        const committee = await Committee.findByIdAndUpdate(committeeId, {committee_description:description})
+        console.log('Committee description edited successfully ')
+        res.status(200).json(committee)
     } catch (error) {
         res.status(400).json({
             error: error.message
@@ -214,19 +230,13 @@ router.get('/committee/:id', async (req,res) => {
     const committeeId = req.params.id;
 
     const committee = await Committee.findById(committeeId)
-    const committeeHead = await User.findOne({role:'Head', committee:committee.committee_name})
-    const committeeViceHeads = await User.find({role:'Vice Head', committee:committee.committee_name})
     try {
         // Read Output to browser
         if (!committee) {
             res.status(404).json({error: 'Not a Committee'})
             return 0
         }
-        res.status(200).json({
-            committee:committee,
-            committee_head: committeeHead,
-            committee_vice_heads : committeeViceHeads
-        })
+        res.status(200).json(committee)
     } catch (error) {
         console.log(error)
     }

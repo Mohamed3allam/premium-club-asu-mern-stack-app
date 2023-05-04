@@ -5,6 +5,6 @@ const { grantAccess } = require('../middleware/verifyAuthorization')
 const { signupUser, loginUser } = require('../controllers/userAuthController')
 
 router.post('/login', loginUser)
-router.post('/signup',requireAuth, grantAccess('createAny', 'profile'), signupUser)
+router.post('/signup',requireAuth, grantAccess('createAny', 'user'), signupUser)
 
 module.exports = router

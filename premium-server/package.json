@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node server.js",
+    "server": "nodemon server.js",
     "client": "npm start --prefix premium-club-asu",
-    "dev": "npm run server && npm run client",
+    "dev": "npm run client && npm run server",
     "render-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm install --prefix premium-club-asu && npm run build --prefix premium-club-asu"
   },
   "author": "",

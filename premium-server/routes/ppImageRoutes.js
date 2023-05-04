@@ -60,7 +60,7 @@ const upload = multer({ storage: PPImageStorage })
 
 // @route /upload-pp-image
 // @desc Upload PP Image Route
-router.put('/upload-pp-image',requireAuth,upload.single('pp-image'), async (req,res, next)=> {
+router.put('/upload-pp-image', requireAuth, grantAccess('updateOwn', 'user'),upload.single('pp-image'), async (req,res, next)=> {
     console.log(req.file,req.user)
     try {
         const userId = req.user.id

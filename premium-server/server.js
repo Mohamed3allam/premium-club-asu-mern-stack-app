@@ -21,6 +21,7 @@ const homeSectionRoutes = require('./routes/homeData')
 const homeMainEventsImagesRoutes = require('./routes/homeMainEventsImages')
 const activityRoutes = require('./routes/activityRoutes')
 const committeeRoutes = require('./routes/committeeRoutes');
+const committeeSectionRoutes = require('./routes/committeeSectionRoutes');
 
 
 mongoose.connect(process.env.MONGO_URI,{ useNewUrlParser:true, useUnifiedTopology:true, maxPoolSize:10, readPreference:'secondary' }, () => {
@@ -62,6 +63,7 @@ app.use('/home-api', homeSectionRoutes)
 app.use('/home-api', homeMainEventsImagesRoutes)
 app.use('/activity-api', activityRoutes)
 app.use('/committee-api', committeeRoutes)
+app.use('/committee-api', committeeSectionRoutes)
 
 // @route GET /
 // @desc Loads Image upload Form

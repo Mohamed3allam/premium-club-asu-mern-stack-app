@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
+const Committee = require('../models/committees/Committee')
 
 // Creating token for the `user`
 const createToken = (_id, _name,_username,_email, _role, _committee, _profilePicUrl) => {

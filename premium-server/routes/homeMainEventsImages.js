@@ -19,6 +19,8 @@ const HomeMainEventsConn = mongoose.createConnection(process.env.MONGO_URI_WEBSI
     useNewUrlParser:true, 
     useUnifiedTopology:true, 
     readPreference:'secondary' 
+}, () => {
+    console.log('connected to home main events Connection')
 })
 //Init gfs
 let HomeMainEventsGfs;
@@ -167,7 +169,7 @@ const updateSingle = multer({ storage: UpdateSingleStorage })
 
 // @route /upload-pp-image
 // @desc Upload PP Image Route
-router.post('/upload-home-main-event-images',dropDatabasesBeforeUploadingBulk ,uploadMultiple.array('home-main-event-images', 10), async (req,res)=> {
+router.post('/upload-home-main-event-images', requireAuth, grantAccess('updateAny', 'website'), dropDatabasesBeforeUploadingBulk ,uploadMultiple.array('home-main-event-images', 10), async (req,res)=> {
     console.log(req.files,req.user)
     try {
         res.json({files: req.files})
@@ -177,8 +179,8 @@ router.post('/upload-home-main-event-images',dropDatabasesBeforeUploadingBulk ,u
 })
 
 // Upload a single Image to GridFsBucket and to mongodb in json form
-router.post('/add-single-home-main-event-image',uploadSingle.single('add-single-home-main-event-image'), async (req,res)=> {
-    console.log(req.file,req.user)
+router.post('/add-single-home-main-event-image', requireAuth, grantAccess('updateAny', 'website'), uploadSingle.single('add-single-home-main-event-image'), async (req,res)=> {
+    console.log(req.file,req.user) 
     try {
         res.json({file: req.file})
     } catch (error) {
@@ -210,7 +212,7 @@ router.get('/home-main-events-images/display/:name', async (req,res, next) => {
         })
 })
 
-router.put('/update-home-main-events-image/json/:id',updateSingle.single('update-single-home-main-event-image'), async (req,res) => {
+router.put('/update-home-main-events-image/json/:id', requireAuth, grantAccess('updateAny', 'website'), updateSingle.single('update-single-home-main-event-image'), async (req,res) => {
     try {
         // console.log(req)
         console.log(req.body)
@@ -230,7 +232,7 @@ router.put('/update-home-main-events-image/json/:id',updateSingle.single('update
     }
 })
 
-router.delete('/delete-single-home-main-events-image/json/:id',requireAuth, async (req,res, next) => {
+router.delete('/delete-single-home-main-events-image/json/:id', requireAuth, grantAccess('updateAny', 'website'), async (req,res, next) => {
     try {
         const imageId = req.params.id
         await HomeMainEventsGfs.delete(imageId)

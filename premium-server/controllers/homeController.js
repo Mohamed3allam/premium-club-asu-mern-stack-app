@@ -32,7 +32,7 @@ const getSection = async (req,res,next) => {
         res.status(200).json(section)
     } catch (error) {
         console.log(error);
-        res.status(404).json(error)
+        res.status(404).json({error: error})
     }
 }
 
